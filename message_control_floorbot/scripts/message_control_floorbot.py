@@ -89,16 +89,24 @@ if __name__ == "__main__":
         # Call the switch
         resp = s.call(SwitchControllerRequest(["joint_position_controller"],  # Start these guys
                                               ["position_trajectory_controller"],  # stop these guys
-                                              SwitchControllerRequest.STRICT))  # and be strict in the switch
+                                              SwitchControllerRequest.STRICT))
+        # Strictness is either STRICT or BEST_EFFORT
+        # STRICT: switching will fail and result in a no-op if anything goes
+        # wrong (an invalid controller name, a controller that failed to
+        # start, etc. )
+        # BEST_EFFORT: means that even when something goes wrong with on
+        # controller, the service will still try to start/stop the remaining
+        # controllers.
+
         if resp.ok == 1:
             rospy.loginfo("Controller switched!")
         else:
             rospy.loginfo("Controller not switched")
             quit()
-        
+
         rospy.loginfo("!!!! Get ready on the E-stop !!!!")
         rospy.sleep(10)
-        
+
         currj = fc.getJointState()
         startj = [i for i in currj]  # shallow copy
         desj = [i for i in currj]  # shallow copy
@@ -141,11 +149,12 @@ if __name__ == "__main__":
         desj[3] = desj[3] + 0.3
         fc.goToPosition(joint_goal=desj, dur=10)
         rospy.sleep(1)
-        
+
         # Return to start
         rospy.loginfo("Let's return to start")
         fc.goToPosition(joint_goal=startj, dur=5)
         rospy.sleep(10)
+
         # http://wiki.ros.org/rospy/Overview/Services#Calling_services
     except rospy.ROSInterruptException:
         print("Killed")
