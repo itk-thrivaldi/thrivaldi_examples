@@ -41,6 +41,8 @@ class FloorController(object):
 
         # The maximum joint_rate that we can accept
         self.max_speed = 6.0  # rad/s
+        # Don't go above. The hardware can take 7.0
+        # but the simulator can't do higher than 6 ish.
 
         # The goal tolerance
         self.tolerance = 0.01  # rad
@@ -106,7 +108,7 @@ if __name__ == "__main__":
         rospy.loginfo("Starting")
         
         fc = FloorController()
-        rospy.sleep(2)
+        rospy.sleep(5)
         currj = fc.getJointState()
         rospy.loginfo("We are at "+str(currj))
         goalj = [i for i in currj]  # shallow copy
@@ -117,11 +119,12 @@ if __name__ == "__main__":
         # We'd like to do more later, so we don't just rospy.spin()
         while fc.getGoalSet():
             rospy.sleep(0.1)
-
+        
         currj = fc.getJointState()
         rospy.loginfo("Reached " + str(currj))
-
-        fc.max_speed = 7.0  # Approximately max speed
+        rospy.sleep(2)
+        
+        
         currj = fc.getJointState()
         rospy.loginfo("Let's return!")
         goalj = [i for i in currj]  # shallow copy
@@ -132,7 +135,7 @@ if __name__ == "__main__":
         # We'd like to do more later, so we don't just rospy.spin()
         while fc.getGoalSet():
             rospy.sleep(0.1)
-
+        
         currj = fc.getJointState()
         rospy.loginfo("Reached " + str(currj))
 
