@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import rospy # For all things ros with python
+import rospy  # For all things ros with python
 
 # JointState is defined in sensor_msgs.msg
 # If you know a message but not where it is
