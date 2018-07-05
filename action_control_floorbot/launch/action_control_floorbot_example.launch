@@ -3,8 +3,8 @@
   <!-- Arguments of the launch -->
   <arg name="sim" default="true"/>
 
-  <!-- Load robotlab urdf -->
-  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find robotlab_support)/urdf/robotlab.xacro'" />
+  <!-- Load thrivaldi urdf -->
+  <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find thrivaldi_support)/urdf/thrivaldi.xacro'" />
 
   <!-- Run robot_state_publisher
        The robot_state_publisher node is a node that takes the /joint_states and makes sure
@@ -13,16 +13,16 @@
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="state_publisher"/>
 
   <!-- Load RVIZ -->
-  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find robotlab_support)/rviz/robotlab.rviz" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(find thrivaldi_support)/rviz/thrivaldi.rviz" />
   
   <!-- Robot interface streaming starts -->
   <group if="$(arg sim)">
-    <include file="$(find robotlab_support)/launch/robot_interface_streaming_robotlab.launch">
+    <include file="$(find thrivaldi_support)/launch/robot_interface_streaming_thrivaldi.launch">
       <arg name="sim_floor" value="true"/>
     </include>
   </group>
   <group unless="$(arg sim)">
-    <include file="$(find robotlab_support)/launch/robot_interface_streaming_robotlab.launch">
+    <include file="$(find thrivaldi_support)/launch/robot_interface_streaming_thrivaldi.launch">
       <arg name="rsi_floor" value="true"/>
     </include>
   </group>

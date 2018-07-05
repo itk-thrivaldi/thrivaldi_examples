@@ -29,7 +29,7 @@ class FloorController(object):
 
         # It's always good to name our joints, and this time we'll do it using
         # rosparam. In the config file:
-        # robotlab_support/config/floor/controller_joint_names.yaml
+        # thrivaldi_support/config/floor/controller_joint_names.yaml
         # we have set the joint names already. And they've been loaded into
         # rosparam in the load_rsi.launch. Thus it's easier to just read them.
         self.joint_names = rospy.get_param("/floor/controller_joint_names")

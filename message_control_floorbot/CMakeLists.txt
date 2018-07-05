@@ -12,7 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
   controller_manager_msgs
   message_generation
-  robotlab_support
+  thrivaldi_support
 )
 
 ## System dependencies are found with CMake's conventions

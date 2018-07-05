@@ -1,7 +1,7 @@
 <launch>
   <arg name="paused" default="false"/>
-  <!-- Startup gazebo with robotlab model -->
-  <include file="$(find robotlab_gazebo)/launch/robotlab_gazebo.launch"/>
+  <!-- Startup gazebo with thrivaldi model -->
+  <include file="$(find thrivaldi_gazebo)/launch/thrivaldi_gazebo.launch"/>
 
   <!-- Startup a node running our simple_joint_subscriber -->
   <node name="simple_joint_subscriber" pkg="simple_joint_subscriber" type="joint_subscriber.py" args="" output="screen"/>

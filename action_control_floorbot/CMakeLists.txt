@@ -11,7 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   actionlib
   actionlib_msgs
   message_generation
-  robotlab_support
+  thrivaldi_support
   rospy
   std_msgs
   sensor_msgs
@@ -109,7 +109,7 @@ find_package(catkin REQUIRED COMPONENTS
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES action_control_floorbot
-#  CATKIN_DEPENDS actionlib actionlib_msgs message_generation robotlab_support rospy std_msgs
+#  CATKIN_DEPENDS actionlib actionlib_msgs message_generation thrivaldi_support rospy std_msgs
 #  DEPENDS system_lib
 )
 

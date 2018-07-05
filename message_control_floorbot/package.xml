@@ -55,7 +55,7 @@
   <depend>std_msgs</depend>
   <depend>controller_manager_msgs</depend>
   <depend>message_generation</depend>
-  <depend>robotlab_support</depend>
+  <depend>thrivaldi_support</depend>
   <depend>sensor_msgs</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
