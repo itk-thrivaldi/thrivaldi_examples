@@ -3,9 +3,6 @@ import rospy
 
 from std_msgs.msg import Float64MultiArray
 from sensor_msgs.msg import JointState
-from controller_manager_msgs.srv import SwitchController
-from controller_manager_msgs.srv import SwitchControllerRequest
-
 
 import threading
 import numpy as np
@@ -15,8 +12,10 @@ class FloorController(object):
     """Example of controlling the floor robot using joint position commands.
     WARNING: Giving sane speeds and behavior is entirely up to you."""
     def __init__(self):
-        rospy.init_node("floor_message_controller", anonymous=True)
-        self.rate = rospy.Rate(80.0)  # Publishing rate
+        rospy.init_node("floor_message_controller", anonymous=True,
+                        disable_signals=True)  # Ignore this last one normally
+        # We disable signals because we want to handle exceptions ourself
+        self.rate = rospy.Rate(83.0)  # Publishing rate
         # We need some info on the joint_states
         self.sub = rospy.Subscriber("/floor/joint_states",
                                     JointState,
@@ -26,13 +25,6 @@ class FloorController(object):
         # As in action_control_floorbot_client, I think we have to use locks to
         # ensure safety of the joint_states
         self.lock = threading.Lock()
-
-        # It's always good to name our joints, and this time we'll do it using
-        # rosparam. In the config file:
-        # thrivaldi_support/config/floor/controller_joint_names.yaml
-        # we have set the joint names already. And they've been loaded into
-        # rosparam in the load_rsi.launch. Thus it's easier to just read them.
-        self.joint_names = rospy.get_param("/floor/controller_joint_names")
 
         # Now let's setup the topic publisher:
         self.pub = rospy.Publisher("/floor/joint_position_controller/command",
@@ -55,7 +47,7 @@ class FloorController(object):
         rospy.loginfo("Going to "+str(joint_goal))
         goalj = np.asarray(joint_goal)
         displacementj = goalj - currj
-        nsteps = int((dur*80.0))  # Controller operates at 80 Hz
+        nsteps = int((dur*83.0))  # Controller operates at 80 Hz
         dj = displacementj/nsteps
         desiredj = currj
         for i in xrange(nsteps):
@@ -75,34 +67,6 @@ if __name__ == "__main__":
         #  Block until joint_states becomes available:
         rospy.loginfo("Waiting for /floor/joint_states message")
         rospy.wait_for_message("/floor/joint_states", JointState, timeout=None)
-
-        # First let's switch the active controller.
-        # The default controller loaded by load_rsi.launch in
-        # robot_streaming_interface.launch is
-        # position_trajectory_controller
-        rospy.loginfo("Waiting for switchcontroller service")
-        rospy.wait_for_service("/floor/controller_manager/switch_controller")
-
-        # make a callable Service Proxy object (rospy interface to service)
-        s = rospy.ServiceProxy("/floor/controller_manager/switch_controller",
-                               SwitchController)
-        # Call the switch
-        resp = s.call(SwitchControllerRequest(["joint_position_controller"],  # Start these guys
-                                              ["position_trajectory_controller"],  # stop these guys
-                                              SwitchControllerRequest.STRICT))
-        # Strictness is either STRICT or BEST_EFFORT
-        # STRICT: switching will fail and result in a no-op if anything goes
-        # wrong (an invalid controller name, a controller that failed to
-        # start, etc. )
-        # BEST_EFFORT: means that even when something goes wrong with on
-        # controller, the service will still try to start/stop the remaining
-        # controllers.
-
-        if resp.ok == 1:
-            rospy.loginfo("Controller switched!")
-        else:
-            rospy.loginfo("Controller not switched")
-            quit()
 
         rospy.loginfo("!!!! Get ready on the E-stop !!!!")
         rospy.sleep(10)

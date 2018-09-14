@@ -2,7 +2,7 @@
 <launch>
   <!-- Arguments of the launch -->
   <arg name="sim" default="true"/>
-
+  
   <!-- Load thrivaldi urdf -->
   <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find thrivaldi_support)/urdf/thrivaldi.xacro'" />
 
@@ -14,20 +14,44 @@
 
   <!-- Load RVIZ -->
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find thrivaldi_support)/rviz/thrivaldi.rviz" />
-  
-  <!-- Robot interface streaming starts -->
-  <group if="$(arg sim)">
-    <include file="$(find thrivaldi_support)/launch/robot_interface_streaming_thrivaldi.launch">
-      <arg name="sim_floor" value="true"/>
-    </include>
-  </group>
-  <group unless="$(arg sim)">
-    <include file="$(find thrivaldi_support)/launch/robot_interface_streaming_thrivaldi.launch">
-      <arg name="rsi_floor" value="true"/>
-    </include>
+
+  <!-- RSI driver -->
+  <group ns="floor" unless="$(arg sim)" >
+      <!-- load controller parameters -->
+    <rosparam file="$(find thrivaldi_support)/config/floor/rsi_params.yaml" command="load" />
+    <!-- start controller-->
+    <node name="kuka_hardware_interface_rsi" pkg="kuka_rsi_hw_interface" type="kuka_hardware_interface_node" respawn="false" output="screen" required="true" />
+    <!-- Load joint controller configurations from YAML file to parameter server -->
+    <rosparam file="$(find thrivaldi_support)/config/floor/hardware_controllers.yaml" command="load"/>
+    <rosparam file="$(find thrivaldi_support)/config/floor/ftc_controller.yaml" command="load"/>
+    <!-- Load floor controller joint names from YAML file to parameter server -->
+    <rosparam file="$(find thrivaldi_support)/config/floor/controller_joint_names.yaml" command="load"/>
+    <!-- Load default controllers -->
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="force_torque_sensor_controller joint_position_controller joint_state_controller" />
   </group>
 
+  <!-- Simulation using RSI driver -->
+  <group ns="floor" if="$(arg sim)">
+     <!-- load controller parameters -->
+    <rosparam file="$(find thrivaldi_support)/config/floor/rsi_params_sim.yaml" command="load"/>
+    <!-- start controller-->
+    <node name="kuka_hardware_interface_rsi" pkg="kuka_rsi_hw_interface" type="kuka_hardware_interface_node" respawn="false" output="screen" required="true"/>
+    <!-- Load joint controller configurations from YAML file to parameter server -->
+    <rosparam file="$(find thrivaldi_support)/config/floor/hardware_controllers.yaml" command="load"/>
+    <rosparam file="$(find thrivaldi_support)/config/floor/ftc_controller.yaml" command="load"/>
+    <!-- Load floor controller joint names from YAML file to parameter server -->
+    <rosparam file="$(find thrivaldi_support)/config/floor/controller_joint_names.yaml" command="load"/>
+    <!-- Load controllers -->
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" args="force_torque_sensor_controller joint_position_controller joint_state_controller"/>
+    <!-- Load RSI simulation node -->
+    <node name="kuka_rsi_simulator" pkg="kuka_rsi_simulator" type="kuka_rsi_simulator" args="127.0.0.1 49152"/>
+  </group>
+
+  <!-- Use joint_state_publisher to merge joint_states from both controllers -->
+  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher">
+      <rosparam param="source_list">["/gantry/joint_states","/floor/joint_states"]</rosparam>
+      <param name="rate" value="80" />
+  </node>
   <!-- Spawn our rospy node -->
   <node name="floor_message_control" pkg="message_control_floorbot" type="message_control_floorbot.py" output="screen"/>
-  
 </launch>
