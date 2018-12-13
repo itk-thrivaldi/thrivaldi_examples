@@ -14,7 +14,7 @@
 
   <!-- Load RVIZ -->
   <node name="rviz" pkg="rviz" type="rviz" args="-d $(find thrivaldi_support)/rviz/thrivaldi.rviz" />
-  
+
   <!-- Robot interface streaming starts -->
   <group if="$(arg sim)">
     <include file="$(find thrivaldi_support)/launch/robot_interface_streaming_thrivaldi.launch">
@@ -29,5 +29,4 @@
 	      
   <!-- Spawn our rospy node -->
   <node name="floor_callback_control" pkg="callback_control_floorbot" type="callback_control_floorbot.py" output="screen"/>
-  
 </launch>
