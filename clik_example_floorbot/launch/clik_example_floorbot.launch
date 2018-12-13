@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <launch>
   <!-- Arguments of the launch -->
-  <arg name="sim" default="true"/>
-
+  <arg name="sim" default="true"/> <!-- Simulate -->
+  <arg name="kvp" default="true"/> <!-- KVP or RSI? -->
+  <arg name="record" default="false"/> <!-- should we record -->
   <!-- Load thrivaldi urdf -->
   <param name="robot_description" command="$(find xacro)/xacro --inorder '$(find thrivaldi_support)/urdf/thrivaldi.xacro'" />
 
@@ -22,12 +23,38 @@
     </include>
   </group>
   <group unless="$(arg sim)">
-    <include file="$(find thrivaldi_support)/launch/robot_interface_streaming_thrivaldi.launch">
-      <arg name="rsi_floor" value="true"/>
-    </include>
+    <group if="$(arg kvp)">
+      <include file="$(find thrivaldi_support)/launch/robot_interface_streaming_thrivaldi.launch">
+	<arg name="kvp_floor" value="true"/>
+	<arg name="kvp_var_floor" value="true"/>
+      </include>
+    </group>
+    <group unless="$(arg kvp)">
+      <include file="$(find thrivaldi_support)/launch/robot_interface_streaming_thrivaldi.launch">
+	<arg name="rsi_floor" value="true"/>
+	<arg name="kvp_var_floor" value="true"/>
+      </include>
+    </group>
   </group>
-	      
+  <!-- spawn our visualizer services -->
+  <node name="vizhandler" pkg="py_viz_marker" type="vizhandler.py" output="screen" args="-rate 1"/>
+
   <!-- Spawn our rospy node -->
-  <node name="floor_callback_control" pkg="callback_control_floorbot" type="callback_control_floorbot.py" output="screen"/>
-  
+  <node name="clik_example_floorbot" pkg="clik_example_floorbot" type="clik_example_floorbot.py" output="screen"/>
+  <group if="$(arg record)">
+    <group if="$(arg sim)">
+      <node name="rosbag_record" pkg="rosbag" type="record"
+	    args="record -o /tmp/clik_example_floorbot_sim -a" />
+    </group>
+    <group unless="$(arg sim)">
+      <group if="$(arg kvp)">
+	<node name="rosbag_record" pkg="rosbag" type="record"
+	      args="record -o /tmp/clik_example_floorbot_kvp -a" />
+      </group>
+      <group unless="$(arg kvp)">
+	<node name="rosbag_record" pkg="rosbag"
+	      args="record -o /tmp/clik_example_floorbot_rsi -a" />
+      </group>
+    </group>
+  </group>
 </launch>
