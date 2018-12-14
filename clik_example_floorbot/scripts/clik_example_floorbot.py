@@ -146,9 +146,32 @@ if __name__ == "__main__":
         set_max=fov_max**2,
         set_min=0.0,
         gain=10.0,
-        constraint_type="hard",
+        constraint_type="soft"
     )
 
+    # Joint constraints
+    joint_lim_cnstr = cc.SetConstraint(
+        label="joint_limits",
+        expression=q,
+        set_max=cs.np.array(fk_dict["upper"]),
+        set_min=cs.np.array(fk_dict["lower"]),
+        constraint_type="hard"
+    )
+
+    # Joint rate constraints
+    deg2rad = cs.np.pi/180.0
+    joint_rate_cnstr = cc.VelocitySetConstraint(
+        label="joint_rate_limits",
+        expression=q,
+        set_max=0.75*deg2rad*cs.np.array([
+            156,
+            156,
+            156,
+            343,
+            659
+        ]),
+        constraint_type="hard",
+    )
     # Formulate skill
     constraints = []
     constraints += [traj_cnstr]
