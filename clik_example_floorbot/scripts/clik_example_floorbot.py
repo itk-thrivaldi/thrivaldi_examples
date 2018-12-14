@@ -127,7 +127,7 @@ if __name__ == "__main__":
     P_ellipse = cs.diag([1/(ell_depth**2), 1/(ell_width**2), 1/(ell_height**2)])
     RD = cs.mtimes(R_fl1, d_end)
     ellipse_end = cs.mtimes(RD.T, cs.mtimes(P_ellipse, RD))
-
+    max_speed = 3.0  # rad/s
     ####################################################################
     # Setup constraints and skill
     ####################################################################
@@ -197,8 +197,8 @@ if __name__ == "__main__":
         namespace="floor",
         cntrllr_class=cntrllr_class,
         casclik_joint_names=casclik_joint_names,
-        max_robot_vel_var=[1.5]*len(casclik_joint_names),
-        min_robot_vel_var=[-1.5]*len(casclik_joint_names)
+        max_robot_vel_var=[max_speed]*len(casclik_joint_names),
+        min_robot_vel_var=[-max_speed]*len(casclik_joint_names)
     )
 
     ####################################################################
