@@ -136,7 +136,7 @@ if __name__ == "__main__":
         label="track_traj",
         expression=p_fk(t, q) - traj_des,
         constraint_type="soft",
-        gain=0.1
+        gain=1.0
     )
 
     # POV constraint, keep looking somewhat in X direction
