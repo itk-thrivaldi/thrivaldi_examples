@@ -102,13 +102,13 @@ if __name__ == "__main__":
     n_x = 5
     n_y = 2
     n_z = 3
-    omega = 0.05
+    omega = 0.1
     scale_x = 0.2
     scale_y = 0.2
     scale_z = 0.2
-    offset_x = 0.5
-    offset_y = 0.5
-    offset_z = 0.5
+    offset_x = -1.4
+    offset_y = 0.7
+    offset_z = 0.7
     traj_des = cs.vertcat(scale_x*cs.sin(omega*t*n_x) + offset_x,
                           scale_y*cs.sin(omega*t*n_y + 2*cs.np.pi) + offset_y,
                           scale_z*cs.sin(omega*t*n_z + 2*cs.np.pi) + offset_z)
